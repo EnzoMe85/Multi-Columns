@@ -2,6 +2,65 @@
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
+/***/ "./src/components/number-control.js":
+/*!******************************************!*\
+  !*** ./src/components/number-control.js ***!
+  \******************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @wordpress/element */ "@wordpress/element");
+/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @wordpress/components */ "@wordpress/components");
+/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__);
+
+
+const NumberControl = props => {
+  const {
+    min,
+    max,
+    step,
+    value,
+    onChange,
+    label,
+    ...additionalProps
+  } = props;
+  const minlength = min.toString().length;
+  return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.BaseControl, {
+    label: label
+  }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("input", {
+    type: "number",
+    min: min,
+    max: max,
+    step: step,
+    value: value,
+    onChange: e => {
+      let val = e.target.value;
+      if (e.target.value.length >= minlength) {
+        val = val > max ? max : val;
+        val = val < min ? min : val;
+      }
+      onChange(val);
+    },
+    onBlur: e => {
+      let val = e.target.value;
+      if (e.target.value.length < minlength) {
+        val = min;
+      }
+      onChange(val);
+    },
+    style: {
+      marginLeft: '8px'
+    }
+  }));
+};
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (NumberControl);
+
+/***/ }),
+
 /***/ "./src/edit.js":
 /*!*********************!*\
   !*** ./src/edit.js ***!
@@ -18,12 +77,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @wordpress/block-editor */ "@wordpress/block-editor");
 /* harmony import */ var _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var _editor_scss__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./editor.scss */ "./src/editor.scss");
+/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @wordpress/components */ "@wordpress/components");
+/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _components_number_control__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./components/number-control */ "./src/components/number-control.js");
+/* harmony import */ var _editor_scss__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./editor.scss */ "./src/editor.scss");
 
 /**
  * Retrieves the translation of text.
  *
- * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-i18n/
+ * @see https://developer.wordpress.org/block-editor/packages/packages-i18n/
  */
 
 
@@ -31,8 +93,10 @@ __webpack_require__.r(__webpack_exports__);
  * React hook that is used to mark the block wrapper element.
  * It provides all the necessary props like the class name.
  *
- * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-block-editor/#useblockprops
+ * @see https://developer.wordpress.org/block-editor/packages/packages-block-editor/#useBlockProps
  */
+
+
 
 
 /**
@@ -47,7 +111,7 @@ __webpack_require__.r(__webpack_exports__);
  * The edit function describes the structure of your block in the context of the
  * editor. This represents what the editor will render when the block is used.
  *
- * @see https://developer.wordpress.org/block-editor/reference-guides/block-api/block-edit-save/#edit
+ * @see https://developer.wordpress.org/block-editor/developers/block-api/block-edit-save/#edit
  *
  * @return {WPElement} Element to render.
  */
@@ -55,18 +119,200 @@ function Edit({
   attributes,
   setAttributes
 }) {
-  const onChangeContent = val => {
+  const {
+    columnCount,
+    columnWidth,
+    columnGap,
+    columnRuleStyle,
+    columnRuleWidth,
+    columnRuleColor,
+    dropCapColor,
+    dropCapSize
+  } = attributes;
+  const columnStyles = {
+    columnCount,
+    columnWidth,
+    columnGap,
+    columnRuleStyle,
+    columnRuleWidth,
+    columnRuleColor,
+    '--drop-cap-color': dropCapColor,
+    '--drop-cap-font-size': dropCapSize.fontSize,
+    '--drop-cap-line-height': dropCapSize.lineHeight
+  };
+  const ALLOWED_BLOCKS = ['core/heading', 'core/paragraph', 'core/image'];
+  const TEMPLATE_PARAGRAPHS = ['Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin finibus, lectus non interdum cursus, arcu sapien mollis lacus, et tincidunt odio nisi ut purus. Duis eleifend, magna placerat faucibus tincidunt, orci nulla ornare tortor, eget egestas tortor nunc quis sem. Cras in tortor justo. Nulla consectetur leo vel blandit consectetur. Fusce quis sapien ante. Vestibulum non varius augue, et ultricies urna. Integer hendrerit suscipit nibh.', 'Interdum et malesuada fames ac ante ipsum primis in faucibus. Cras vestibulum mauris diam. Praesent semper diam a efficitur iaculis. Nullam lacinia augue quis lorem accumsan tempus. Maecenas dapibus velit eu blandit pretium. Nullam posuere ut ipsum in commodo. Fusce fringilla quis turpis a placerat. Etiam hendrerit velit a lacus varius ornare.'];
+  const MC_TEMPLATE = [['core/heading', {
+    level: 2,
+    placeholder: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Heading...', 'multi-columns')
+  }], ['core/paragraph', {
+    placeholder: TEMPLATE_PARAGRAPHS[0]
+  }], ['core/heading', {
+    level: 4,
+    placeholder: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Sub-heading...', 'multi-columns')
+  }], ['core/paragraph', {
+    placeholder: TEMPLATE_PARAGRAPHS[1]
+  }]];
+  const onChangeColumnCount = val => {
     setAttributes({
-      content: val
+      columnCount: val
     });
   };
-  return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.RichText, {
-    ...(0,_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.useBlockProps)(),
-    tagName: "div",
-    onChange: onChangeContent,
-    value: attributes.content,
-    placeholder: "Enter some text here..."
-  });
+  const onChangeColumnWidth = val => {
+    setAttributes({
+      columnWidth: Number(val)
+    });
+  };
+  const onChangeColumnGap = val => {
+    setAttributes({
+      columnGap: Number(val)
+    });
+  };
+  const onChangeColumnRuleStyle = val => {
+    setAttributes({
+      columnRuleStyle: val
+    });
+  };
+  const onChangeColumnRuleWidth = val => {
+    setAttributes({
+      columnRuleWidth: Number(val)
+    });
+  };
+  const onChangeColumnRuleColor = val => {
+    setAttributes({
+      columnRuleColor: val
+    });
+  };
+  const onChangeDropCapColor = val => {
+    setAttributes({
+      dropCapColor: val
+    });
+  };
+  const onChangeDropCapSize = val => {
+    switch (val) {
+      case 'small':
+        setAttributes({
+          dropCapSize: {
+            size: 'small',
+            fontSize: '3.8rem',
+            lineHeight: '3.5rem'
+          }
+        });
+        break;
+      case 'large':
+        setAttributes({
+          dropCapSize: {
+            size: 'large',
+            fontSize: '6.2rem',
+            lineHeight: '5.2rem'
+          }
+        });
+        break;
+      default:
+        setAttributes({
+          dropCapSize: {
+            size: 'small',
+            fontSize: '3.8rem',
+            lineHeight: '3.5rem'
+          }
+        });
+    }
+  };
+  const colorSettingsDropDown = attributes.className === 'is-style-drop-cap' ? [{
+    value: columnRuleColor,
+    onChange: onChangeColumnRuleColor,
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Separator colour', 'multi-columns')
+  }, {
+    value: dropCapColor,
+    onChange: onChangeDropCapColor,
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Drop Capital colour', 'multi-columns')
+  }] : [{
+    value: columnRuleColor,
+    onChange: onChangeColumnRuleColor,
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Separator colour', 'multi-columns')
+  }];
+  return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.InspectorControls, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.PanelBody, {
+    title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Column Settings', 'multi-columns')
+  }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.RangeControl, {
+    label: "Columns",
+    value: columnCount,
+    onChange: onChangeColumnCount,
+    min: 2,
+    max: 6
+  }), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_components_number_control__WEBPACK_IMPORTED_MODULE_4__["default"], {
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Width', 'multi-columns'),
+    value: columnWidth,
+    onChange: onChangeColumnWidth,
+    min: 120,
+    max: 500,
+    step: 10
+  }), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_components_number_control__WEBPACK_IMPORTED_MODULE_4__["default"], {
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Gap', 'multi-columns'),
+    onChange: onChangeColumnGap,
+    value: columnGap,
+    min: 10,
+    max: 100
+  })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.PanelBody, {
+    title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Column Separator', 'multi-columns'),
+    initialOpen: false
+  }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.SelectControl, {
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Separator Style', 'multi-columns'),
+    onChange: onChangeColumnRuleStyle,
+    value: columnRuleStyle,
+    options: [{
+      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('None', 'multi-columns'),
+      value: 'none'
+    }, {
+      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Solid', 'multi-columns'),
+      value: 'solid'
+    }, {
+      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Dotted', 'multi-columns'),
+      value: 'dotted'
+    }, {
+      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Dashed', 'multi-columns'),
+      value: 'dashed'
+    }, {
+      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Double', 'multi-columns'),
+      value: 'double'
+    }, {
+      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Groove', 'multi-columns'),
+      value: 'groove'
+    }, {
+      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Ridge', 'multi-columns'),
+      value: 'ridge'
+    }]
+  }), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_components_number_control__WEBPACK_IMPORTED_MODULE_4__["default"], {
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Width', 'multi-columns'),
+    onChange: onChangeColumnRuleWidth,
+    value: columnRuleWidth,
+    min: 1,
+    max: 8
+  })), attributes.className === 'is-style-drop-cap' && (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.PanelBody, {
+    title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Drop-Cap', 'multi-columns'),
+    initialOpen: false
+  }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.SelectControl, {
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Size', 'multi-columns'),
+    onChange: onChangeDropCapSize,
+    value: dropCapSize.size,
+    options: [{
+      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Small', 'multi-columns'),
+      value: 'small'
+    }, {
+      label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Large', 'multi-columns'),
+      value: 'large'
+    }]
+  })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.PanelColorSettings, {
+    title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__.__)('Colour settings', 'multi-columns'),
+    initialOpen: false,
+    colorSettings: colorSettingsDropDown
+  })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    ...(0,_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.useBlockProps)({
+      style: columnStyles
+    })
+  }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.InnerBlocks, {
+    allowedBlocks: ALLOWED_BLOCKS,
+    template: MC_TEMPLATE
+  })));
 }
 
 /***/ }),
@@ -138,14 +384,23 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @wordpress/element */ "@wordpress/element");
 /* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @wordpress/block-editor */ "@wordpress/block-editor");
-/* harmony import */ var _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @wordpress/i18n */ "@wordpress/i18n");
+/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @wordpress/block-editor */ "@wordpress/block-editor");
+/* harmony import */ var _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__);
+
+/**
+ * Retrieves the translation of text.
+ *
+ * @see https://developer.wordpress.org/block-editor/packages/packages-i18n/
+ */
+
 
 /**
  * React hook that is used to mark the block wrapper element.
  * It provides all the necessary props like the class name.
  *
- * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-block-editor/#useblockprops
+ * @see https://developer.wordpress.org/block-editor/packages/packages-block-editor/#useBlockProps
  */
 
 
@@ -154,18 +409,39 @@ __webpack_require__.r(__webpack_exports__);
  * be combined into the final markup, which is then serialized by the block
  * editor into `post_content`.
  *
- * @see https://developer.wordpress.org/block-editor/reference-guides/block-api/block-edit-save/#save
+ * @see https://developer.wordpress.org/block-editor/developers/block-api/block-edit-save/#save
  *
  * @return {WPElement} Element to render.
  */
 function save({
   attributes
 }) {
-  return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_1__.RichText.Content, {
-    ..._wordpress_block_editor__WEBPACK_IMPORTED_MODULE_1__.useBlockProps.save(),
-    tagName: "div",
-    value: attributes.content
-  });
+  const {
+    columnCount,
+    columnWidth,
+    columnGap,
+    columnRuleStyle,
+    columnRuleWidth,
+    columnRuleColor,
+    dropCapColor,
+    dropCapSize
+  } = attributes;
+  const columnStyles = {
+    columnCount,
+    columnWidth,
+    columnGap,
+    columnRuleStyle,
+    columnRuleWidth,
+    columnRuleColor,
+    '--drop-cap-color': dropCapColor,
+    '--drop-cap-font-size': dropCapSize.fontSize,
+    '--drop-cap-line-height': dropCapSize.lineHeight
+  };
+  return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)("div", {
+    ..._wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.useBlockProps.save({
+      style: columnStyles
+    })
+  }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.InnerBlocks.Content, null));
 }
 
 /***/ }),
@@ -214,6 +490,16 @@ module.exports = window["wp"]["blocks"];
 
 /***/ }),
 
+/***/ "@wordpress/components":
+/*!************************************!*\
+  !*** external ["wp","components"] ***!
+  \************************************/
+/***/ ((module) => {
+
+module.exports = window["wp"]["components"];
+
+/***/ }),
+
 /***/ "@wordpress/element":
 /*!*********************************!*\
   !*** external ["wp","element"] ***!
@@ -240,7 +526,7 @@ module.exports = window["wp"]["i18n"];
   \************************/
 /***/ ((module) => {
 
-module.exports = JSON.parse('{"$schema":"https://schemas.wp.org/trunk/block.json","apiVersion":3,"name":"create-block/multi-columns","version":"0.1.0","title":"Multi Columns","category":"design","icon":"universal-access","description":"Example block scaffolded with Create Block tool.","supports":{"html":true,"color":{},"spacing":{"margin":true,"padding":true},"textdomain":"multi-columns","editorScript":"file:./index.js","editorStyle":"file:./index.css","style":"file:./style-index.css","viewScript":"file:./view.js","attributes":{"content":{"type":"string","source":"html","selector":"div"}}}}');
+module.exports = JSON.parse('{"$schema":"https://schemas.wp.org/trunk/block.json","apiVersion":2,"name":"create-block/multi-columns","version":"0.1.0","title":"Multi Columns","category":"design","icon":"columns","description":"Displays content in newspaper style columns","parent":["core/post-content"],"keywords":["newspaper","columns","flow","text"],"supports":{"html":true,"color":true,"spacing":{"margin":true,"padding":true},"align":["wide","full"]},"styles":[{"name":"default","label":"Default","isDefault":true},{"name":"drop-cap","label":"Drop-Cap"}],"example":{"innerBlocks":[{"name":"core/heading","attributes":{"level":3,"content":"Heading"}},{"name":"core/paragraph","attributes":{"content":"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin finibus, lectus non interdum cursus, arcu sapien mollis lacus, et tincidunt odio nisi ut purus. Duis eleifend, magna placerat faucibus tincidunt, orci nulla ornare tortor, eget egestas tortor nunc quis sem. Cras in tortor justo. "}},{"name":"core/heading","attributes":{"level":4,"content":"Sub-heading"}},{"name":"core/paragraph","attributes":{"content":"Interdum et malesuada fames ac ante ipsum primis in faucibus. Cras vestibulum mauris diam. Praesent semper diam a efficitur iaculis. Nullam lacinia augue quis lorem accumsan tempus. Nulla consectetur leo vel blandit consectetur.Fusce quis sapien ante. Vestibulum non varius augue, et ultricies urna. Integer hendrerit suscipit nibh."}}],"attributes":{"columnCount":3,"columnWidth":80},"viewportWidth":720},"textdomain":"multi-columns","editorScript":"file:./index.js","editorStyle":"file:./index.css","style":"file:./style-index.css","attributes":{"style":{"type":"object","default":{"color":{"text":"#3a3a3a","background":"#fbf9f4"},"spacing":{"padding":{"top":"20px","right":"20px","bottom":"20px","left":"20px"}}}},"columnCount":{"type":"integer","default":4},"columnWidth":{"type":"integer","default":200},"columnGap":{"type":"integer","default":40},"columnRuleStyle":{"type":"string","default":"solid"},"columnRuleWidth":{"type":"integer","default":1},"columnRuleColor":{"type":"string","default":"#b8b8b8"},"dropCapColor":{"type":"string","default":"#b8b8b8"},"dropCapSize":{"type":"object","default":{"size":"small","fontSize":"3.8rem","lineHeight":"3.5rem"}}}}');
 
 /***/ })
 
